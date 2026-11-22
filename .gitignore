@@ -1,0 +1,5 @@
+config/databases.sh
+*.log
+INPUT*/
+Input_*/
+Output_*/

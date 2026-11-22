@@ -4,28 +4,22 @@ set -euo pipefail
 ################################################################################################################################################
 # CB 05.08.2025
 
-# PlasmidFinder v2.1.6
-
-# This is set to the website options: 60% min coverage (-l 0.6) and 50% ID threshold (-t 0.5)
+# MLST v2.0.9
 
 ################################################################################################################################################
 
 # Initialize Anaconda environmet
 source ~/anaconda3/etc/profile.d/conda.sh
-conda activate plasmidfinder_env
+conda activate mlst-cge_env
 
 # Input DATA [FASTA file; draft (Illumina) or complete assembly (Long read or hybrid), including MAGs]
 DATA="INPUT"
 
-# Parameters
-COV="0.6" # % coverage (-l)
-ID="0.5" # % identity (-t)
+# Species MLST database (use species folder name in /home/labuser/WGS/Databases/CGE_dbs/mlst_db)
+SP="ecoli1"
 
-# Define DB variables
-plasmidfinder_db="/home/labuser/WGS/Databases/CGE_dbs/plasmidfinder_db"
-
-# Hide stupid python warning...
-export PYTHONWARNINGS="ignore"
+# Define DB variable
+mlst_db="${DB_DIR:-/home/labuser/WGS/Databases}/CGE_dbs/mlst_db"
 
 ################################################################################################################################################
 # Do not modify below!
@@ -39,11 +33,11 @@ for file_path in "$DATA"/*.{fa,fna,fasta}; do
         filename=$(basename -- "$file_path")
         basename="${filename%.*}"
         # Create output directory for results
-        output_dir="Plasmidfinder_report_${basename}"
+        output_dir="MLST_report_${basename}"
         mkdir -p "$output_dir"
-        # Run plasmidfinder
-        echo "Analysing $basename .."
-        plasmidfinder.py -i "$file_path" -o "$output_dir" -p "$plasmidfinder_db" -l "$COV" -t "$ID" -x -q
+        # Run mlst
+        echo "Analyzing $basename .."
+        mlst.py -i "$file_path" -o "$output_dir" -s "$SP" -p "$mlst_db" -x -q
         # Rename output files and append the sample name (basename)
         for original_file in "$output_dir"/*.{fsa,txt,tsv}; do
             if [[ -f "$original_file" ]]; then
@@ -54,4 +48,5 @@ for file_path in "$DATA"/*.{fa,fna,fasta}; do
         done
     fi
 done
+rm -r tmp_MLST/
 echo "Finished analyzing all samples -- BYE BYE!"

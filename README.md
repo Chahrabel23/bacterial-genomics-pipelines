@@ -1,87 +1,101 @@
-# Bioinformatics Pipelines
+# bacterial-genomics-pipelines
 
-Reproducible scripts and pipelines for **bacterial genomics, phylogenomics, and metagenomics**, developed and used across my research at the University of Bern (IFIK & IVB). They cover the full path from raw sequencing reads to annotated genomes, phylogenies, and community-diversity statistics, for both **short-read (Illumina)** and **long-read (Oxford Nanopore, PacBio)** data.
+Bash scripts I use for bacterial whole-genome sequencing at the University of Bern (Institute of
+Veterinary Bacteriology and Institute for Infectious Diseases). They take Illumina, Oxford Nanopore
+or PacBio reads through QC, assembly, assembly QC, annotation, typing and resistance gene
+detection, and comparative genomics.
 
-**Chahrazed Belhout**, DVM, PhD — Genomics & Bioinformatics
-📍 Bern, Switzerland
+Each script works on a folder of input files, runs one tool per sample and writes one output folder
+per sample. The tool version is written in the header of each script. They run on Linux with one
+conda environment per tool, on a workstation or on the UBELIX SLURM cluster.
 
----
+## Layout
 
-## Overview
-
-These pipelines were built for isolate whole-genome sequencing, comparative and phylogenomic analysis (including two novel species descriptions), and shotgun-metagenomics MAG recovery. They run on Linux with `conda`-managed environments and are set up for a **SLURM** cluster (University of Bern, UBELIX).
-
-## Environment
-
-| | |
-|---|---|
-| **Languages** | Bash, R, Python |
-| **Compute** | Linux · SLURM (UBELIX HPC) · conda |
-| **Read types** | Illumina (short-read); Oxford Nanopore & PacBio (long-read) |
-
-## Repository structure
-
-### 1 · Quality control & preprocessing
+### 01_read_qc
 | Script | Tool | Purpose |
 |---|---|---|
-| `fastqc.sh` | FastQC | Read quality assessment (Illumina) |
-| `trimmomatic.sh` | Trimmomatic | Adapter/quality trimming (short-read) |
-| `porechop.sh` | Porechop | Adapter removal (Nanopore) |
-| `filtlong.sh` | Filtlong | Length/quality filtering (long-read) |
-| `host_decontamination.sh` | — | Remove host reads before assembly |
+| `fastqc.sh` | FastQC 0.12.1 | Read quality report (Illumina) |
+| `trimmomatic.sh` | Trimmomatic 0.39 | Adapter and quality trimming (Illumina) |
+| `porechop.sh` | Porechop 0.2.4 | Adapter removal (Nanopore) |
+| `filtlong.sh` | Filtlong 0.2.1 | Length and quality filtering (long reads) |
+| `host_decontamination.sh` | minimap2 2.30, samtools 1.22.1 | Removal of host reads from Nanopore data |
 
-### 2 · Genome assembly
+### 02_assembly
 | Script | Tool | Purpose |
 |---|---|---|
-| `unicycler_spades.sh` | Unicycler / SPAdes | Short-read & hybrid isolate assembly |
-| `hybrid_assembly_pipeline.sh` | — | Combined short + long-read assembly |
-| `longread_assembly_pipeline.sh` | — | Long-read assembly workflow |
+| `unicycler_spades.sh` | Unicycler 0.5.1, SPAdes 4.2.0 | Short-read and hybrid assembly |
+| `hybrid_assembly_pipeline.sh` | Unicycler, Polypolish 0.6.0, Pypolca 0.3.1 | Hybrid assembly followed by one round of polishing |
+| `longread_assembly_pipeline.sh` | Flye 2.9.6, Racon 1.5.0, Medaka 2.1.0 | Long-read assembly and polishing |
 
-### 3 · Assembly QC
+### 03_assembly_qc
 | Script | Tool | Purpose |
 |---|---|---|
-| `quast_nanopore.sh` | QUAST | Assembly metrics |
-| `busco.sh` | BUSCO | Assembly completeness |
-| `checkm.sh` | CheckM | Genome/MAG completeness & contamination |
+| `quast.sh` | QUAST 5.3.0 | Assembly metrics and coverage with Illumina reads |
+| `quast_nanopore.sh` | QUAST 5.3.0 | Same, with Nanopore reads |
+| `busco.sh` | BUSCO 6.0.0 | Gene completeness |
+| `checkm.sh` | CheckM 1.2.4 | Completeness and contamination |
 
-### 4 · Annotation
+### 04_annotation
 | Script | Tool | Purpose |
 |---|---|---|
-| `bakta.sh` | Bakta | Genome annotation (default) |
-| `prokka.sh` | Prokka | Genome annotation (alternative) |
+| `bakta.sh` | Bakta 1.11.3 | Genome annotation |
+| `prokka.sh` | Prokka 1.14.6 | Genome annotation (alternative) |
 
-### 5 · Typing, AMR & mobile elements
+### 05_typing_amr
 | Script | Tool | Purpose |
 |---|---|---|
-| `mlst.sh` | mlst | Sequence typing |
-| `amrfinder.sh` | AMRFinderPlus | Acquired AMR genes & point mutations |
-| `resfinder.sh` | ResFinder | Acquired resistance genes |
-| `plasmidfinder.sh` | PlasmidFinder | Plasmid replicon typing |
-| `blast.sh` | BLAST | Custom sequence searches |
+| `mlst.sh` | MLST (CGE) 2.0.9 | Sequence typing |
+| `amrfinder.sh` | AMRFinderPlus 4.0.24 | Resistance genes and point mutations |
+| `resfinder.sh` | ResFinder 4.7.2 | Acquired resistance genes, PointFinder, DisinFinder |
+| `plasmidfinder.sh` | PlasmidFinder 2.1.6 | Plasmid replicons |
+| `blast.sh` | BLAST 2.16.0 | Searches against a local plasmid database (PLSDB) |
 
-### 6 · Comparative, structural & phylogenomic analysis
+### 06_comparative_genomics
 | Script | Tool | Purpose |
 |---|---|---|
-| `syri.sh` | SyRI | Structural rearrangements & synteny between genomes |
-| `snippy_reads.sh` | Snippy | SNP calling from reads |
-| `snippy_contigs.sh` | Snippy | SNP calling from assemblies |
+| `snippy_reads.sh` | Snippy 4.6.0 | SNP calling from reads against a reference |
+| `snippy_contigs.sh` | Snippy 4.6.0 | SNP calling from assemblies against a reference |
+| `snippy_core-genome.sh` | snippy-core, Gubbins 3.4, snp-sites, snp-dists, IQ-TREE | Core-genome alignment, recombination removal, SNP distance matrix and tree |
+| `syri.sh` | SyRI 1.7.1 | Synteny and structural rearrangements between two genomes |
 
-## Selected applications
+## Setup
 
-- **Complete reference genomes** assembled and annotated from hybrid short- + long-read data (*Paenimyroides ceti*, *Pseudomonas* sp., MRSA ST630).
-- **Two novel species descriptions** — *Macrococcus animalis* sp. nov. and *Macrococcus equi* sp. nov. — supported by comparative and phylogenomic analysis.
-- **Molecular epidemiology** of resistant Staphylococcaceae, mapping genetic diversity and clonal dissemination.
+1. Create the conda environment named at the top of each script (for example `bakta_env`,
+   `snippy_env`, `amrfinder_env`).
+2. Download the databases and point the scripts to them:
+   ```bash
+   cp config/databases.example.sh config/databases.sh   # then edit DB_DIR
+   source config/databases.sh
+   ```
+3. Put the input files in the folder named at the top of the script (for example `INPUT/`),
+   check the thread number, and run it:
+   ```bash
+   bash 04_annotation/bakta.sh
+   ```
 
-## Notes
+The two assembly pipelines (`hybrid_assembly_pipeline.sh`, `longread_assembly_pipeline.sh`) call
+step scripts from a `Pipeline_scripts/` folder in the working directory (`unicycler_step.sh` or
+`flye_assembly_step.sh`, then `polishing_step.sh`). These step scripts are not in this repository.
 
-- Paths, databases, and resource settings are placeholders — adjust to your system.
-- Reference databases (Bakta, GTDB-Tk, Kraken2, SILVA) must be downloaded separately.
-- Related workflows (shotgun-metagenomics MAG classification with GTDB-Tk; 16S rRNA analysis with DADA2 and microbiome diversity statistics in R) are maintained in companion repositories.
+## Where these scripts were used
 
-## Publications
+- Complete genomes from hybrid short- and long-read assemblies, including *Paenimyroides ceti*
+  MC-ZM-24 with a new subclass B1 metallo-β-lactamase (J Glob Antimicrob Resist, 2026)
+- Description of *Macrococcus animalis* sp. nov. and *Macrococcus equi* sp. nov. (Int J Syst Evol Microbiol, 2025)
+- Clonal dissemination of methicillin-resistant Staphylococcaceae between sheep farms (J Glob Antimicrob Resist, 2025)
 
-Full list on [PubMed](https://pubmed.ncbi.nlm.nih.gov/?term=chahrazed+belhout).
+Full publication list on [PubMed](https://pubmed.ncbi.nlm.nih.gov/?term=chahrazed+belhout).
 
----
+## Related repositories
 
-*Feel free to open an issue or reach out with questions.*
+- [somatic-tn](https://github.com/Chahrabel23/somatic-tn): tumour-normal somatic variant pipeline for NGS panels (Snakemake)
+- [microbiome-16S-analysis](https://github.com/Chahrabel23/microbiome-16S-analysis): 16S rRNA analysis in R (DADA2, phyloseq, DESeq2)
+
+## Credits
+
+`quast.sh` and `snippy_core-genome.sh` were written by a lab colleague (initials ECM in the script
+header). All other scripts are mine.
+
+## Licence
+
+MIT

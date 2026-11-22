@@ -22,7 +22,7 @@ conda activate trimmomatic_env
 THR="20"
 
 # Adapter path
-ADAPTERS="/home/labuser/WGS/Databases/Illumina_adapters"
+ADAPTERS="${DB_DIR:-/home/labuser/WGS/Databases}/Illumina_adapters"
 
 # Adapter file
 ADAPTER_FILE="${ADAPTERS}/TruSeq3-PE-2.fa"

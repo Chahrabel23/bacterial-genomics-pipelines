@@ -23,7 +23,7 @@ OUTPUT_DIR="BLAST_reports"
 mkdir -p "$OUTPUT_DIR"
 
 # Database to perform BLAST (see note above how to create a BLAST database)
-DB="/home/labuser/WGS/Databases/plsdb_local/plsdb_local" # Plasmid database
+DB="${DB_DIR:-/home/labuser/WGS/Databases}/plsdb_local/plsdb_local" # Plasmid database
 
 ################################################################################################################################################
 # Don't touch below!

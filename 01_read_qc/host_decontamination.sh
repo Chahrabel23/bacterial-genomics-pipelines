@@ -28,7 +28,7 @@ deco_out="Decontaminated_nanopore_reads"
 mkdir -p "$deco_out"
 
 # Reference directory and genones
-ref_dir="/home/labuser/WGS/Databases/Reference_genomes"
+ref_dir="${DB_DIR:-/home/labuser/WGS/Databases}/Reference_genomes"
 ref_human="$ref_dir/GCF_000001405.40_GRCh38.p14_genomic.fna"
 ref_zmorio="$ref_dir/GCA_027724725.1_ASM2772472v1_genomic.fna"
 

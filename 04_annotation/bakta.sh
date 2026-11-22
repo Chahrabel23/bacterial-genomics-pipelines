@@ -2,27 +2,28 @@
 set -euo pipefail
 
 ################################################################################################################################################
-# CB 05.08.2025
+# 04.08.2025 CB
 
-# BUSCO v6.0.0 
+# Bakta v1.11.3 (database version: 2025-02-24)
 
-# Script to determine number of complete and incomplete marker genes (BUSCO)
-# Use autolineage-prok or --lineage_dataset (bacteria_odb10) to force a specific one (modify script below)
-# See https://busco.ezlab.org/busco_userguide.html
+# Script to annotate assemblies with Bakta
+# See https://github.com/oschwengers/bakta?tab=readme-ov-file#examples
 
 ################################################################################################################################################
 
 # Initialize Anaconda environmet
 source ~/anaconda3/etc/profile.d/conda.sh
-conda activate busco_env
+conda activate bakta_env
+
+# Set database variable
+export BAKTA_DB=${DB_DIR:-/home/labuser/WGS/Databases}/bakta_db
 
 # Input folder and threads
 DATA="INPUT"
-THR="16"
-DB_PATH="/home/labuser/WGS/Databases/busco_db/busco_downloads"
+THR=20
 
 ################################################################################################################################################
-# Do not modify below!
+# Don't touch below!
 ################################################################################################################################################
 
 # Main
@@ -34,8 +35,8 @@ for file_path in "$DATA"/*.{fa,fna,fasta}; do
         basename="${filename%.*}"
         # Define output directory for results
         output_dir="Output_report_${basename}"
-        # Run BUSCO
+        # Run Bakta
         echo "Analyzing $basename .."
-	busco -i "$file_path" -o "$output_dir" -m genome --download_path "$DB_PATH" --auto-lineage-prok -c "$THR"
+	bakta --db "$BAKTA_DB" --verbose --output "$output_dir" --prefix "$basename" --threads "$THR" "$file_path"
     fi
 done
