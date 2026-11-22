@@ -55,7 +55,7 @@ conda environment per tool, on a workstation or on the UBELIX SLURM cluster.
 |---|---|---|
 | `snippy_reads.sh` | Snippy 4.6.0 | SNP calling from reads against a reference |
 | `snippy_contigs.sh` | Snippy 4.6.0 | SNP calling from assemblies against a reference |
-| `snippy_core-genome.sh` | snippy-core, Gubbins 3.4, snp-sites, snp-dists, IQ-TREE | Core-genome alignment, recombination removal, SNP distance matrix and tree |
+| `snippy_core-genome.sh` | snippy-core, Gubbins 3.4, snp-sites 2.5.1, snp-dists 0.8.2, IQ-TREE 3.0.1 | Core-genome alignment, recombination removal, SNP distance matrix and ML tree |
 | `syri.sh` | SyRI 1.7.1 | Synteny and structural rearrangements between two genomes |
 
 ## Setup
@@ -90,11 +90,6 @@ Full publication list on [PubMed](https://pubmed.ncbi.nlm.nih.gov/?term=chahraze
 
 - [somatic-tn](https://github.com/Chahrabel23/somatic-tn): tumour-normal somatic variant pipeline for NGS panels (Snakemake)
 - [microbiome-16S-analysis](https://github.com/Chahrabel23/microbiome-16S-analysis): 16S rRNA analysis in R (DADA2, phyloseq, DESeq2)
-
-## Credits
-
-`quast.sh` and `snippy_core-genome.sh` were written by a lab colleague (initials ECM in the script
-header). All other scripts are mine.
 
 ## Licence
 
